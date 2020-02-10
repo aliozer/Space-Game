@@ -20,6 +20,7 @@ namespace AO.SpaceGame
         }
 
         public override void Update() { }
+        public override void FixedUpdate() { }
 
         public override void Stop()
         {

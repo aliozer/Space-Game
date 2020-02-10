@@ -14,13 +14,6 @@ namespace AO.SpaceGame
     {
 
         [SerializeField]
-        private SpaceshipController _spaceShip;
-        public SpaceshipController Spaceship { get => _spaceShip; set => _spaceShip = value; }
-
-        [SerializeField]
-        private SpaceshipController _ghostSpaceShip;
-        public SpaceshipController GhostSpaceship { get => _ghostSpaceShip; set => _ghostSpaceShip = value; }
-        [SerializeField]
         private BaseSpaceshipInput _input;
         public BaseSpaceshipInput Input => _input;
         [SerializeField]
@@ -29,6 +22,9 @@ namespace AO.SpaceGame
         [SerializeField]
         private AstroidController _astroidController;
         public AstroidController AstroidController => _astroidController;
+        [SerializeField]
+        private Camera _camera;
+        public Camera Camera => _camera;
 
 
         private GameState state;
@@ -44,7 +40,6 @@ namespace AO.SpaceGame
 
         private void Start()
         {
-
             State = new WaitingGameState(this);
         }
 
@@ -54,5 +49,10 @@ namespace AO.SpaceGame
                 State.Update();
         }
 
+        private void FixedUpdate()
+        {
+            if (State != null)
+                State.FixedUpdate();
+        }
     }
 }

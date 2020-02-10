@@ -12,18 +12,29 @@ namespace AO.SpaceGame
         private WeaponAttackType _currentAttackType = WeaponAttackType.Single;
         private float _currentFireRate = 2.0f;
         private float _currentFireSpeedFactor = 1.0f;
+        private SpaceshipController _ghostSpaceShip;
+        private SpaceshipController _spaceShip;
 
         private List<ToggleButton> _toggles = new List<ToggleButton>();
 
         public PlayState(GameController controller) : base(controller) { }
 
+
+        private float _cameraDistance = -20f;
+        private float _cameraHeight = 6f;
+
         public override void Start()
         {
             Controller.Input.enabled = true;
 
+
             var spaceshipPrefab = PrefabUtil.Create<SpaceshipController>("Spaceship");
-            Controller.Spaceship = GameObject.Instantiate(spaceshipPrefab, Vector3.zero, Quaternion.identity);
-            Controller.Spaceship.Input = Controller.Input;
+            _spaceShip = GameObject.Instantiate(spaceshipPrefab, Vector3.zero, Quaternion.identity);
+            _spaceShip.Input = Controller.Input;
+            _spaceShip.StartEngine();
+
+
+            PrepareCamera();
 
             Controller.AstroidController.Create();
 
@@ -70,6 +81,45 @@ namespace AO.SpaceGame
                 ChangeGhostSpaceship(Controller.UIController.GhostToggle.IsOn);
                 CheckPowerButtonsInreractable();
             }
+
+        }
+
+        public override void FixedUpdate()
+        {
+            if (_ghostSpaceShip && _spaceShip)
+            {
+                Vector3 _currentVelocity = Vector3.zero;
+                _ghostSpaceShip.transform.position = Vector3.SmoothDamp(_ghostSpaceShip.transform.position, _spaceShip.transform.position + _spaceShip.transform.up * 4f, ref _currentVelocity, Time.deltaTime * 5f);
+                _ghostSpaceShip.transform.rotation =  Quaternion.Slerp(_ghostSpaceShip.transform.rotation, _spaceShip.transform.rotation, Time.deltaTime * 20f);
+            }
+
+            if (_spaceShip)
+                UpdateCameraPositionAndRotation();
+        }
+
+        private void PrepareCamera()
+        {
+
+            GameObject cameraContainer = new GameObject("Camera");
+            Controller.Camera.transform.parent = cameraContainer.transform;
+            cameraContainer.transform.parent = _spaceShip.transform;
+            Controller.Camera.transform.localPosition = new Vector3(0f, _cameraHeight, _cameraDistance);
+        }
+
+
+        private void UpdateCameraPositionAndRotation()
+        {
+
+            float smoothFactor = 2.0f;
+            float angle = 18f;
+
+            var cameraEuler = Quaternion.Euler(0f, 0f, Controller.Input.Roll * angle);
+            Controller.Camera.transform.localRotation = Quaternion.Lerp(Controller.Camera.transform.localRotation, cameraEuler, Time.deltaTime * smoothFactor);
+
+            var cameraParentEuler = Quaternion.Euler(-Controller.Input.Picth * angle, -Controller.Input.Yaw * angle, 0f);
+            Controller.Camera.transform.parent.localRotation = Quaternion.Lerp(Controller.Camera.transform.parent.localRotation, cameraParentEuler, Time.deltaTime * smoothFactor);
+
+            Controller.Camera.transform.localPosition = Vector3.Lerp(Controller.Camera.transform.localPosition, new Vector3(0f, _cameraHeight, _cameraDistance - (angle * Controller.Input.Throttle)), Time.deltaTime * smoothFactor);
         }
 
         private void ChangeGhostSpaceship(bool isEnabled)
@@ -77,60 +127,60 @@ namespace AO.SpaceGame
             if (isEnabled)
             {
                 var spaceshipPrefab = PrefabUtil.Create<SpaceshipController>("GhostSpaceship");
-                Controller.GhostSpaceship = GameObject.Instantiate(spaceshipPrefab, Controller.Spaceship.transform.position + Controller.Spaceship.transform.up * 3f, Controller.Spaceship.transform.rotation);
-                Controller.GhostSpaceship.Input = Controller.Input;
-                Controller.GhostSpaceship.SetVelocity(Controller.Spaceship.Velocity, Controller.Spaceship.AngularVelocity);
+                _ghostSpaceShip = GameObject.Instantiate(spaceshipPrefab, _spaceShip.transform.position + _spaceShip.transform.up, _spaceShip.transform.rotation);
+                _ghostSpaceShip.Input = Controller.Input;
 
                 if (Controller.UIController.CrossToggle.IsOn)
-                    Controller.GhostSpaceship.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(Controller.GhostSpaceship.transform, "GhostSpaceshipTopAssaultWeapon");
+                    _ghostSpaceShip.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(_ghostSpaceShip.transform, "GhostSpaceshipTopAssaultWeapon");
 
-                Controller.GhostSpaceship.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
-                Controller.GhostSpaceship.ChangeWeaponFireRates(_currentFireRate);
-                Controller.GhostSpaceship.ChangeWeaponAttackTypes(_currentAttackType);
+                _ghostSpaceShip.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
+                _ghostSpaceShip.ChangeWeaponFireRates(_currentFireRate);
+                _ghostSpaceShip.ChangeWeaponAttackTypes(_currentAttackType);
             }
             else
             {
-                GameObject.Destroy(Controller.GhostSpaceship.gameObject);
+                GameObject.Destroy(_ghostSpaceShip.gameObject);
+                _ghostSpaceShip = null;
             }
         }
 
         private void ChangeWeaponsFireSpeedFactors(bool isEnabled)
         {
             _currentFireSpeedFactor = isEnabled ? 1.5f : 1.0f;
-            Controller.Spaceship.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
-            if (Controller.GhostSpaceship)
-                Controller.GhostSpaceship.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
+            _spaceShip.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
+            if (_ghostSpaceShip)
+                _ghostSpaceShip.ChangeWeaponFireSpeedFactors(_currentFireSpeedFactor);
         }
 
         private void IncreaseFireRate(bool enabled)
         {
             _currentFireRate = enabled ? 1.0f : 2.0f;
-            Controller.Spaceship.ChangeWeaponFireRates(_currentFireRate);
-            if (Controller.GhostSpaceship)
-                Controller.GhostSpaceship.ChangeWeaponFireRates(_currentFireRate);
+            _spaceShip.ChangeWeaponFireRates(_currentFireRate);
+            if (_ghostSpaceShip)
+                _ghostSpaceShip.ChangeWeaponFireRates(_currentFireRate);
         }
 
         private void ChangeAttackType(bool isBrust)
         {
             _currentAttackType = isBrust ? WeaponAttackType.Brust : WeaponAttackType.Single;
-            Controller.Spaceship.ChangeWeaponAttackTypes(_currentAttackType);
-            if (Controller.GhostSpaceship)
-                Controller.GhostSpaceship.ChangeWeaponAttackTypes(_currentAttackType);
+            _spaceShip.ChangeWeaponAttackTypes(_currentAttackType);
+            if (_ghostSpaceShip)
+                _ghostSpaceShip.ChangeWeaponAttackTypes(_currentAttackType);
         }
 
         private void ChangeCrossWeapon(bool isEnabled)
         {
             if (isEnabled)
             {
-                Controller.Spaceship.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(Controller.Spaceship.transform);
-                if (Controller.GhostSpaceship)
-                    Controller.GhostSpaceship.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(Controller.GhostSpaceship.transform, "GhostSpaceshipTopAssaultWeapon");
+                _spaceShip.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(_spaceShip.transform);
+                if (_ghostSpaceShip)
+                    _ghostSpaceShip.TopAssaultWeapon = GetAssaultWeapon<SpaceshipTopAssaultWeapon>(_ghostSpaceShip.transform, "GhostSpaceshipTopAssaultWeapon");
             }
-            else if (Controller.Spaceship.TopAssaultWeapon)
+            else if (_spaceShip.TopAssaultWeapon)
             {
-                GameObject.DestroyImmediate(Controller.Spaceship.TopAssaultWeapon.gameObject);
-                if (Controller.GhostSpaceship)
-                    GameObject.DestroyImmediate(Controller.GhostSpaceship.TopAssaultWeapon.gameObject);
+                GameObject.DestroyImmediate(_spaceShip.TopAssaultWeapon.gameObject);
+                if (_ghostSpaceShip)
+                    GameObject.DestroyImmediate(_ghostSpaceShip.TopAssaultWeapon.gameObject);
             }
         }
 
@@ -175,11 +225,18 @@ namespace AO.SpaceGame
             _toggles.Clear();
             Controller.UIController.Exit -= UIController_Exit;
 
-            if (Controller.Spaceship)
-                GameObject.Destroy(Controller.Spaceship.gameObject);
+            Controller.Camera.transform.parent = null;
+            Controller.Camera.transform.position =  new Vector3(0f, _cameraHeight, _cameraDistance);
+            Controller.Camera.transform.rotation = Quaternion.identity;
 
-            if (Controller.GhostSpaceship)
-                GameObject.Destroy(Controller.GhostSpaceship.gameObject);
+            if (_spaceShip)
+                GameObject.Destroy(_spaceShip.gameObject);
+
+            if (_ghostSpaceShip)
+            {
+                GameObject.Destroy(_ghostSpaceShip.gameObject);
+                _ghostSpaceShip = null;
+            }
         }
     }
 }

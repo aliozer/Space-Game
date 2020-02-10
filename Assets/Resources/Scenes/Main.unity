@@ -1286,11 +1286,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73ef3945b41615e44ba64fb73466246a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spaceShip: {fileID: 0}
-  _ghostSpaceShip: {fileID: 0}
   _input: {fileID: 1339703583}
   _uiController: {fileID: 727017247}
   _astroidController: {fileID: 1728419353}
+  _camera: {fileID: 1490460915}
 --- !u!1 &1047426512
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,13 +20,6 @@ namespace AO.SpaceGame
         [SerializeField]
         public List<SpaceshipThruster> _thrusters = new List<SpaceshipThruster>();
 
-        [Header("FPS Camera")]
-        [SerializeField]
-        public Camera _fpsCamera;
-
-        private float _cameraDistance = -20f;
-        private float _cameraHeight = 6f;
-
 
         [Header("Weapon Slots")]
         [SerializeField]
@@ -40,31 +33,20 @@ namespace AO.SpaceGame
         public SpaceshipTopAssaultWeapon TopAssaultWeapon { get => _topAssaultWeapon; set => _topAssaultWeapon = value; }
         [SerializeField]
         private SpaceshipMissileWeapon _missileWeapon;
-        private Vector3 _velocity;
-        private Vector3 _angularVelocity;
+
+        private bool _isStartedEngine;
 
         public SpaceshipMissileWeapon MissileWeapon { get => _missileWeapon; set => _missileWeapon = value; }
 
-        public Vector3 Velocity => _rigidbody.velocity;
-        public Vector3 AngularVelocity => _rigidbody.angularVelocity;
-
-        protected override void Start()
-        {
-            base.Start();
-
-            if (_fpsCamera)
-                _fpsCamera.transform.localPosition = new Vector3(0f, _cameraHeight, _cameraDistance);
-
-            _rigidbody.velocity = _velocity;
-            _rigidbody.angularVelocity = _angularVelocity;
-        }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
 
-            SetThrustersForce();
-            UpdateCameraPositionAndRotation();
+            if (_isStartedEngine)
+            {
+                SetThrustersForce();
+            }
 
         }
 
@@ -75,16 +57,11 @@ namespace AO.SpaceGame
             WeaponsFire();
         }
 
-        public void SetVelocity(Vector3 velocity, Vector3 angularVelocity)
+        public void StartEngine()
         {
-            _velocity = velocity;
-            _angularVelocity = angularVelocity;
-            if (_rigidbody)
-            {
-                _rigidbody.velocity = _velocity;
-                _rigidbody.angularVelocity = _angularVelocity;
-            }
+            _isStartedEngine = true;
         }
+
 
         public void ChangeWeaponFireRates(float rate)
         {
@@ -168,22 +145,6 @@ namespace AO.SpaceGame
                 _missileWeapon.SpeedFactor = speedFactor;
         }
 
-        private void UpdateCameraPositionAndRotation()
-        {
-            if (_fpsCamera == null)
-                return;
-
-            float smoothFactor = 2.0f;
-            float angle = 18f;
-
-            var cameraEuler = Quaternion.Euler(0f, 0f, -GetRoll() * angle);
-            _fpsCamera.transform.localRotation = Quaternion.Lerp(_fpsCamera.transform.localRotation, cameraEuler, Time.deltaTime * smoothFactor);
-
-            var cameraParentEuler = Quaternion.Euler(-GetPitch() * angle, -GetYaw() * angle, 0f);
-            _fpsCamera.transform.parent.localRotation = Quaternion.Lerp(_fpsCamera.transform.parent.localRotation, cameraParentEuler, Time.deltaTime * smoothFactor);
-
-            _fpsCamera.transform.localPosition = Vector3.Lerp(_fpsCamera.transform.localPosition, new Vector3(0f, _cameraHeight, _cameraDistance - (angle * GetThrottle())), Time.deltaTime * smoothFactor);
-        }
 
         private void SetThrustersForce()
         {
@@ -213,7 +174,7 @@ namespace AO.SpaceGame
 
         protected override float GetPitch()
         {
-            return Input ? -Input.Picth : 0;
+            return Input ? Input.Picth : 0;
         }
 
         protected override float GetRoll()
