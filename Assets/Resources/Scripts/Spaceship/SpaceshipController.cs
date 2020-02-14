@@ -38,6 +38,8 @@ namespace AO.SpaceGame
 
         public SpaceshipMissileWeapon MissileWeapon { get => _missileWeapon; set => _missileWeapon = value; }
 
+        public float FireRate { get; set; } = 2.0f;
+        public float SpeedFactor { get; set; } = 1.0f;
 
         protected override void FixedUpdate()
         {
@@ -65,17 +67,19 @@ namespace AO.SpaceGame
 
         public void ChangeWeaponFireRates(float rate)
         {
+            FireRate = rate;
+
             if (_frontAssaultWeapon)
-                _frontAssaultWeapon.FireRate = rate;
+                _frontAssaultWeapon.FireRate = FireRate;
 
             if (_backAssaultWeapon)
-                _backAssaultWeapon.FireRate = rate;
+                _backAssaultWeapon.FireRate = FireRate;
 
             if (_topAssaultWeapon)
-                _topAssaultWeapon.FireRate = rate;
+                _topAssaultWeapon.FireRate = FireRate;
 
             if (_missileWeapon)
-                _missileWeapon.FireRate = rate;
+                _missileWeapon.FireRate = FireRate;
         }
 
         public void ChangeWeaponAttackTypes(WeaponAttackType weaponAttackType)

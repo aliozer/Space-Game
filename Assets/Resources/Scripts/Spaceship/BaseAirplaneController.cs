@@ -34,7 +34,6 @@ namespace AO
 
         protected float _maxMPS = 0.0f;
         protected Rigidbody _rigidbody;
-        protected float _angleOfAttack;
         private float _forwardSpeed;
         
 
@@ -67,7 +66,6 @@ namespace AO
                 }
 
                 CalculateForwardSpeed();
-                CalculateLift();
                 UpdateRigidbody();
                 HandlePitch();
                 HandleRoll();
@@ -84,20 +82,12 @@ namespace AO
 
         private void HandleRoll()
         {
-            Vector3 flatRight = transform.right;
-            flatRight.y = 0f;
-            flatRight = flatRight.normalized;
-
             Vector3 rollTorque = GetRoll() * _rollSpeed * transform.forward;
             _rigidbody.AddTorque(rollTorque);
         }
 
         private void HandlePitch()
         {
-            Vector3 flatForward = transform.forward;
-            flatForward.y = 0f;
-            flatForward = flatForward.normalized;
-
             Vector3 pitchTorque = GetPitch() * _pitchSpeed * transform.right;
             _rigidbody.AddTorque(pitchTorque);
         }
@@ -106,7 +96,7 @@ namespace AO
         {
             if (_rigidbody.velocity.magnitude > 1.0f)
             {
-                Vector3 updateVelocity = Vector3.Lerp(_rigidbody.velocity, transform.forward * _forwardSpeed, _forwardSpeed * _angleOfAttack * Time.deltaTime);
+                Vector3 updateVelocity = Vector3.Lerp(_rigidbody.velocity, transform.forward * _forwardSpeed, _forwardSpeed * Time.deltaTime);
                 _rigidbody.velocity = updateVelocity;
 
                 Quaternion updateQuaternion = Quaternion.Slerp(_rigidbody.rotation, Quaternion.LookRotation(_rigidbody.velocity.normalized, transform.up), Time.deltaTime);
@@ -114,16 +104,10 @@ namespace AO
             }
         }
 
-        private void CalculateLift()
-        {
-            _angleOfAttack = Vector3.Dot(_rigidbody.velocity.normalized, transform.forward);
-            _angleOfAttack *= _angleOfAttack;
-        }
 
         private void CalculateForwardSpeed()
         {
-            Vector3 localVelocity = transform.InverseTransformDirection(_rigidbody.velocity);
-            _forwardSpeed = Mathf.Max(0.0f, localVelocity.z);
+            _forwardSpeed = Mathf.Max(0.0f, _rigidbody.velocity.z);
             _forwardSpeed = Mathf.Clamp(_forwardSpeed, 0f, _maxMPS);
 
             MPH = _forwardSpeed * MPS_TO_MPH;
