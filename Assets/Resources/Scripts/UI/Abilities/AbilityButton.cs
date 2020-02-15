@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace AO.SpaceGame.UI
 {
-    public class ToggleButton: MonoBehaviour
+    public class AbilityButton : MonoBehaviour
     {
+        public event Action<bool> Changed;
+
+        [SerializeField]
         private Toggle _toggle;
 
         public bool IsOn {
@@ -17,20 +16,22 @@ namespace AO.SpaceGame.UI
             set { _toggle.isOn = value; }
         }
 
+
         public bool Interactable {
             get { return _toggle.interactable; }
             set { _toggle.interactable = value; }
         }
 
-        private void Awake()
+
+        private void Start()
         {
-            _toggle = GetComponent<Toggle>();
+            if (_toggle != null)
+                _toggle.onValueChanged.AddListener(value => OnValueChanged(value));
         }
 
-        public void Toggle()
+        private void OnValueChanged(bool value)
         {
-            if (_toggle.interactable)
-                _toggle.isOn = !_toggle.isOn;
+            Changed?.Invoke(value);
         }
     }
 }

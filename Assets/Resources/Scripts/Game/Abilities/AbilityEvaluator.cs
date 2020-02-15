@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AO.SpaceGame
@@ -16,11 +17,11 @@ namespace AO.SpaceGame
             }
         }
 
-        public void Remove<T>() where T : IAbility
+        public void Remove(Type type)
         {
             foreach (var item in _abilities.ToList())
             {
-                if (typeof(T) == item.GetType())
+                if (type == item.GetType())
                 {
                     item.Destroy();
                     _abilities.Remove(item);

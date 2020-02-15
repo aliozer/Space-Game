@@ -14,8 +14,8 @@ namespace AO.SpaceGame
     {
 
         [SerializeField]
-        private BaseSpaceshipInput _input;
-        public BaseSpaceshipInput Input => _input;
+        private BaseAirplaneInput _input;
+        public BaseAirplaneInput Input => _input;
         [SerializeField]
         private UIController _uiController;
         public UIController UIController => _uiController;
@@ -28,9 +28,11 @@ namespace AO.SpaceGame
 
 
         private GameState state;
-        public GameState State {
+        public GameState State
+        {
             get { return state; }
-            set {
+            set
+            {
                 if (state != null)
                     state.Stop();
                 state = value;

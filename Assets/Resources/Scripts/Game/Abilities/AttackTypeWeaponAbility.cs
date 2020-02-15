@@ -3,12 +3,10 @@
     public class AttackTypeWeaponAbility : IAbility
     {
         public SpaceshipController Spaceship { get; }
-        public WeaponAttackType Type { get; }
 
-        public AttackTypeWeaponAbility(SpaceshipController spaceship, WeaponAttackType type)
+        public AttackTypeWeaponAbility(SpaceshipController spaceship)
         {
             Spaceship = spaceship;
-            Type = type;
         }
 
         public void Destroy()
@@ -18,7 +16,7 @@
 
         public void Start()
         {
-            Spaceship.ChangeWeaponAttackTypes(Type);
+            Spaceship.ChangeWeaponAttackTypes(WeaponAttackType.Brust);
         }
 
         public void Update()

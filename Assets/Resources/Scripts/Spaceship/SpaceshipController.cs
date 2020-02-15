@@ -40,6 +40,7 @@ namespace AO.SpaceGame
 
         public float FireRate { get; set; } = 2.0f;
         public float SpeedFactor { get; set; } = 1.0f;
+        public WeaponAttackType AttackType { get; set; } = WeaponAttackType.Single;
 
         protected override void FixedUpdate()
         {
@@ -84,6 +85,8 @@ namespace AO.SpaceGame
 
         public void ChangeWeaponAttackTypes(WeaponAttackType weaponAttackType)
         {
+            AttackType = weaponAttackType;
+
             if (_frontAssaultWeapon)
                 _frontAssaultWeapon.AttackType = weaponAttackType;
 
@@ -172,23 +175,23 @@ namespace AO.SpaceGame
 
         protected override float GetThrottle()
         {
-            return Input ? Input.Throttle : 0;
+            return _isStartedEngine && Input ? Input.Throttle : 0;
         }
 
 
         protected override float GetPitch()
         {
-            return Input ? Input.Picth : 0;
+            return _isStartedEngine && Input ? Input.Picth : 0;
         }
 
         protected override float GetRoll()
         {
-            return Input ? -Input.Roll : 0;
+            return _isStartedEngine && Input ? -Input.Roll : 0;
         }
 
         protected override float GetYaw()
         {
-            return Input ? Input.Yaw : 0;
+            return _isStartedEngine && Input ? Input.Yaw : 0;
         }
     }
 }

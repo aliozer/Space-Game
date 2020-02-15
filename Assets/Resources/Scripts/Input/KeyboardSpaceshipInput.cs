@@ -44,6 +44,5 @@ namespace AO.SpaceGame.Input
             return UnityEngine.Input.GetKeyDown(KeyCode.Alpha5);
         }
 
-
     }
 }

@@ -15,6 +15,9 @@ namespace AO.SpaceGame
         public void Start()
         {
             Spaceship.TopAssaultWeapon = AssaultWeaponFactory.GetWeapon<SpaceshipTopAssaultWeapon>(Spaceship.transform);
+            Spaceship.TopAssaultWeapon.AttackType = Spaceship.AttackType;
+            Spaceship.TopAssaultWeapon.FireRate = Spaceship.FireRate;
+            Spaceship.TopAssaultWeapon.SpeedFactor = Spaceship.SpeedFactor;
         }
 
         public void Destroy()
@@ -22,18 +25,6 @@ namespace AO.SpaceGame
             GameObject.DestroyImmediate(Spaceship.TopAssaultWeapon.gameObject);
         }
 
-        public void ChangeWeaponFireSpeedFactors(float speedFactor)
-        {
-            Spaceship.ChangeWeaponFireSpeedFactors(speedFactor);
-        }
-        public void ChangeWeaponFireRates(float rate)
-        {
-            Spaceship.ChangeWeaponFireRates(rate);
-        }
-        public void ChangeWeaponAttackTypes(WeaponAttackType type)
-        {
-            Spaceship.ChangeWeaponAttackTypes(type);
-        }
         public void Update()
         {
         }

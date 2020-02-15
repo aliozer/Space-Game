@@ -30,7 +30,7 @@ namespace AO.SpaceGame
         private float _massFactor = 20.0f;
 
 
-        public void Create()
+        public void Initialize()
         {
             if (_prefabs.Count > 0)
             {

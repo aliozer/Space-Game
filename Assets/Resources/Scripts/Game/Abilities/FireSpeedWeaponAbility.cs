@@ -2,26 +2,23 @@
 {
     public class FireSpeedWeaponAbility : IAbility
     {
-        private float _speedFactor;
+        private float _defaultSpeedFactor = 1.0f;
 
         public SpaceshipController Spaceship { get; }
-        public float SpeedFactor { get; }
 
-        public FireSpeedWeaponAbility(SpaceshipController spaceship, float speedFactor)
+        public FireSpeedWeaponAbility(SpaceshipController spaceship)
         {
-            _speedFactor = spaceship.SpeedFactor;
             Spaceship = spaceship;
-            SpeedFactor = speedFactor;
         }
 
         public void Destroy()
         {
-            Spaceship.ChangeWeaponFireSpeedFactors(SpeedFactor);
+            Spaceship.ChangeWeaponFireSpeedFactors(1.5f);
         }
 
         public void Start()
         {
-            Spaceship.ChangeWeaponFireSpeedFactors(_speedFactor);
+            Spaceship.ChangeWeaponFireSpeedFactors(_defaultSpeedFactor);
         }
 
         public void Update()

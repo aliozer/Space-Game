@@ -12,11 +12,11 @@ namespace AO.SpaceGame.Input
     [CustomEditor(typeof(KeyboardSpaceshipInput))]
     public class KeyboardSpaceshipInputEditor: Editor
     {
-        private BaseSpaceshipInput _input;
+        private BaseAirplaneInput _input;
 
         private void OnEnable()
         {
-            _input = (BaseSpaceshipInput)target;
+            _input = (BaseAirplaneInput)target;
         }
 
         public override void OnInspectorGUI()
